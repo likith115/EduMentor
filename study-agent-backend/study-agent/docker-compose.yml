@@ -1,0 +1,30 @@
+services:
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: study-agent-db
+    environment:
+      POSTGRES_DB: studyagent
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: study-agent-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/studyagent
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      JWT_SECRET: my-study-agent-secret-key-must-be-at-least-32-chars
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+    depends_on:
+      - postgres
+
+volumes:
+  postgres-data:
